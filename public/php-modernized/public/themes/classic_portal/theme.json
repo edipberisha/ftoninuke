@@ -1,0 +1,8 @@
+{
+  "name": "Classic Portal",
+  "version": "1.0.0",
+  "author": "Legacy Ftoni",
+  "description": "The soul of PHP-Nuke. 3-column classic information-dense layout.",
+  "screenshot": "screenshot.png",
+  "features": ["3-Column", "Classic PHP-Nuke", "Information Dense"]
+}

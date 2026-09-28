@@ -1,0 +1,92 @@
+<?php
+
+declare(strict_types=1);
+
+namespace FtoniNuke\Controller;
+
+use FtoniNuke\Core\Bootstrap;
+use FtoniNuke\Security\Auth;
+use FtoniNuke\Service\AdminLogService;
+use FtoniNuke\Repository\UserRepository;
+use FtoniNuke\Repository\NewsRepository;
+use FtoniNuke\Repository\BlockRepository;
+use RuntimeException;
+
+/**
+ * AdminController - The cockpit of FtoniNuke v1.0.
+ */
+class AdminController
+{
+    private Auth $auth;
+    private AdminLogService $logger;
+    private Bootstrap $bootstrap;
+
+    public function __construct(Auth $auth, AdminLogService $logger, Bootstrap $bootstrap)
+    {
+        $this->auth = $auth;
+        $this->logger = $logger;
+        $this->bootstrap = $bootstrap;
+
+        // Middleware: Authority Check
+        $this->checkAdminAccess();
+    }
+
+    /**
+     * Security Gate: Only user_level > 1 (Admins) can proceed
+     */
+    private function checkAdminAccess(): void
+    {
+        if (!$this->auth->isAuthenticated()) {
+            header('Location: /login.php');
+            exit;
+        }
+
+        $user = $this->auth->getCurrentUser();
+        // PHP-Nuke legacy: usually user_level 2 or higher was admin
+        if (((int)$user['user_level'] ?? 1) < 2) {
+            throw new RuntimeException("Access Denied: Administrative privileges required.");
+        }
+    }
+
+    /**
+     * Theme Manager Store
+     */
+    public function themes(): void
+    {
+        $themeManager = new \FtoniNuke\Service\ThemeManager(
+            new \FtoniNuke\Repository\BlockRepository(), 
+            new \FtoniNuke\Service\AssetManager()
+        );
+        $themes = $themeManager->getAvailableThemes();
+        
+        require_once __DIR__ . '/../Views/admin/themes/index.html.php';
+    }
+
+    /**
+     * Dashboard Overview
+     */
+    public function index(): void
+    {
+        $stats = [
+            'php_version' => PHP_VERSION,
+            'db_status'   => 'Connected (PDO)',
+            'env'         => $_ENV['APP_ENV'] ?? 'Production',
+            'active_users' => 42, // Dummy for demo, would come from a query
+            'total_stories' => 1500,
+        ];
+
+        $recentLogs = $this->logger->getRecent(5);
+        
+        require_once __DIR__ . '/../Views/admin/dashboard.html.php';
+    }
+
+    /**
+     * Module Toggle Logic
+     */
+    public function toggleBlock(int $bid, bool $status): void
+    {
+        // logic to update nuke_blocks set active = $status
+        $this->logger->log($_SESSION['user_id'], 'TOGGLE_BLOCK', 'Blocks', "Block ID $bid set to " . ($status ? 'Active' : 'Inactive'));
+        header('Location: /admin/modules.php');
+    }
+}

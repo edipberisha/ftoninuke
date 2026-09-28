@@ -1,0 +1,8 @@
+{
+  "name": "Ftoni Modern",
+  "version": "1.0.0",
+  "author": "Ftoni Tech",
+  "description": "Clean, corporate, and Tailwind CSS focused theme for the modern web.",
+  "screenshot": "screenshot.png",
+  "features": ["Tailwind", "Responsive", "Light Mode"]
+}

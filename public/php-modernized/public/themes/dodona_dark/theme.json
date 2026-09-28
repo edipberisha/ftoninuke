@@ -1,0 +1,8 @@
+{
+  "name": "Dodona Dark",
+  "version": "1.0.0",
+  "author": "Ftoni Media",
+  "description": "Radio and media focused, neon highlights on a futuristic dark background.",
+  "screenshot": "screenshot.png",
+  "features": ["Dark Mode", "Neon Vibe", "Media Focused"]
+}

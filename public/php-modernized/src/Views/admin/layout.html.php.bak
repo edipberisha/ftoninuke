@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><?= htmlspecialchars($pageTitle ?? 'Admin') ?> — FtoniNuke</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: -apple-system, system-ui, sans-serif; background: #f0f2f5; }
+        .wrapper { display: flex; min-height: 100vh; }
+        .sidebar {
+            width: 240px; background: #2c3e50; color: #ecf0f1;
+            padding: 20px; flex-shrink: 0;
+        }
+        .sidebar h2 { font-size: 18px; margin: 0 0 24px; }
+        .sidebar a {
+            display: block; padding: 12px 16px;
+            color: #bdc3c7; text-decoration: none;
+            border-radius: 6px; margin-bottom: 4px;
+            transition: all .15s;
+        }
+        .sidebar a:hover { background: #34495e; color: #fff; }
+        .sidebar a.active { background: #3498db; color: #fff; }
+        .sidebar .logout {
+            margin-top: 24px; padding-top: 16px;
+            border-top: 1px solid #34495e;
+        }
+        .main { flex: 1; padding: 32px; }
+        .topbar {
+            background: #fff; padding: 16px 24px;
+            border-radius: 8px; margin-bottom: 24px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,.06);
+        }
+        .topbar h1 { margin: 0; font-size: 20px; color: #2c3e50; }
+        .topbar .user { color: #7f8c8d; font-size: 14px; }
+        .content {
+            background: #fff; padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,.06);
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <aside class="sidebar">
+            <h2>🚀 FtoniNuke</h2>
+            <a href="/public/admin"              class="<?= ($active ?? '') === 'dashboard' ? 'active' : '' ?>">📊 Dashboard</a>
+            <a href="/public/admin/media"        class="<?= ($active ?? '') === 'media' ? 'active' : '' ?>">🖼️ Medya</a>
+            <a href="/public/admin/themes"       class="<?= ($active ?? '') === 'themes' ? 'active' : '' ?>">🎨 Temalar</a>
+            <a href="/public/admin/widgets"      class="<?= ($active ?? '') === 'widgets' ? 'active' : '' ?>">🧩 Widget'lar</a>
+            <div class="logout">
+                <a href="/public/">🏠 Siteye Dön</a>
+                <a href="/public/logout">🚪 Çıkış Yap</a>
+            </div>
+        </aside>
+        <main class="main">
+            <div class="topbar">
+                <h1><?= htmlspecialchars($pageTitle ?? 'Admin') ?></h1>
+                <span class="user">👤 <?= htmlspecialchars($_SESSION['username'] ?? '') ?></span>
+            </div>
+            <div class="content">
+                <?= $content ?? '' ?>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

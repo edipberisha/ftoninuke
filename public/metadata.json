@@ -1,0 +1,6 @@
+{
+  "name": "PHP-Nuke 8.1 Modernizer",
+  "description": "A modern workspace for migrating legacy PHP-Nuke 8.1 portals to PHP 8.3+ with PSR-4, PDO, and secure architecture.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["AI-assisted code modernization", "Legacy PHP analysis"]
+}

@@ -1,0 +1,31 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * FtoniNuke v1.4 - Front Controller
+ */
+
+$lockFile = __DIR__ . '/../install/installed.lock';
+
+if (!file_exists($lockFile)) {
+    header('Location: /install/index.php');
+    exit;
+}
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use FtoniNuke\Core\Bootstrap;
+use FtoniNuke\Core\Router;
+use FtoniNuke\Controller\HomeController;
+
+// Sistemi başlat
+Bootstrap::run();
+
+// Router'ı kur
+$router = new Router();
+
+$router->get('/', [HomeController::class, 'index']);
+
+// İsteği işle
+$router->dispatch();

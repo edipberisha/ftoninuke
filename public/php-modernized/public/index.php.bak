@@ -1,0 +1,45 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * FtoniNuke v1.4 - Front Controller
+ */
+
+$lockFile = __DIR__ . '/../install/installed.lock';
+
+if (!file_exists($lockFile)) {
+    header('Location: /install/index.php');
+    exit;
+}
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use FtoniNuke\Core\Bootstrap;
+use FtoniNuke\Core\Router;
+use FtoniNuke\Controller\HomeController;
+use FtoniNuke\Controller\AuthController;
+use FtoniNuke\Controller\AdminController;
+
+// Sistemi başlat
+Bootstrap::run();
+
+// Router'ı kur
+$router = new Router();
+
+// Public
+$router->get('/',        [HomeController::class, 'index']);
+
+// Auth
+$router->get('/login',   [AuthController::class, 'showLogin']);
+$router->post('/login',  [AuthController::class, 'login']);
+$router->get('/logout',  [AuthController::class, 'logout']);
+
+// Admin
+$router->get('/admin',          [AdminController::class, 'dashboard']);
+$router->get('/admin/media',    [AdminController::class, 'media']);
+$router->get('/admin/themes',   [AdminController::class, 'themes']);
+$router->get('/admin/widgets',  [AdminController::class, 'widgets']);
+
+// İsteği işle
+$router->dispatch();

@@ -1,0 +1,80 @@
+<?php
+
+declare(strict_types=1);
+
+namespace FtoniNuke\Controller;
+
+use FtoniNuke\Core\Database;
+
+class AdminController
+{
+    public function __construct()
+    {
+        // Oturum kontrolü
+        if (empty($_SESSION['user_id'])) {
+            header('Location: /public/login');
+            exit;
+        }
+        if (($_SESSION['user_level'] ?? 0) < 2) {
+            http_response_code(403);
+            die('Bu sayfaya erişim yetkiniz yok.');
+        }
+    }
+
+    public function dashboard(): void
+    {
+        $db = Database::getInstance();
+
+        $stats = [
+            'users' => 0,
+            'news'  => 0,
+        ];
+
+        try {
+            $row = $db->fetch("SELECT COUNT(*) AS c FROM nuke_users");
+            $stats['users'] = (int)($row['c'] ?? 0);
+        } catch (\Throwable $e) {}
+
+        try {
+            $row = $db->fetch("SELECT COUNT(*) AS c FROM nuke_news");
+            $stats['news'] = (int)($row['c'] ?? 0);
+        } catch (\Throwable $e) {}
+
+        $pageTitle = 'Dashboard';
+        $active    = 'dashboard';
+        ob_start();
+        require __DIR__ . '/../Views/admin/dashboard.html.php';
+        $content = ob_get_clean();
+        require __DIR__ . '/../Views/admin/layout.html.php';
+    }
+
+    public function media(): void
+    {
+        $pageTitle = 'Medya';
+        $active    = 'media';
+        ob_start();
+        require __DIR__ . '/../Views/admin/media/index.html.php';
+        $content = ob_get_clean();
+        require __DIR__ . '/../Views/admin/layout.html.php';
+    }
+
+    public function themes(): void
+    {
+        $pageTitle = 'Temalar';
+        $active    = 'themes';
+        ob_start();
+        require __DIR__ . '/../Views/admin/themes/index.html.php';
+        $content = ob_get_clean();
+        require __DIR__ . '/../Views/admin/layout.html.php';
+    }
+
+    public function widgets(): void
+    {
+        $pageTitle = 'Widget\'lar';
+        $active    = 'widgets';
+        ob_start();
+        require __DIR__ . '/../Views/admin/widgets/index.html.php';
+        $content = ob_get_clean();
+        require __DIR__ . '/../Views/admin/layout.html.php';
+    }
+}

@@ -1,0 +1,92 @@
+<?php
+
+declare(strict_types=1);
+
+namespace FtoniNuke\Core;
+
+use PDO;
+use PDOException;
+use RuntimeException;
+
+/**
+ * Modern Database Wrapper for FtoniNuke
+ * 
+ * Replaces legacy mysql_ and sql_ functions with a secure PDO implementation.
+ * Uses Prepared Statements to prevent SQL Injection.
+ */
+class Database
+{
+    private static ?self $instance = null;
+    private PDO $connection;
+
+    private function __construct()
+    {
+        $host = $_ENV['DB_HOST'] ?? 'localhost';
+        $db   = $_ENV['DB_NAME'] ?? 'nuke_db';
+        $user = $_ENV['DB_USER'] ?? 'root';
+        $pass = $_ENV['DB_PASS'] ?? '';
+        $port = $_ENV['DB_PORT'] ?? '3306';
+        $charset = 'utf8mb4';
+
+        $dsn = "mysql:host=$host;dbname=$db;port=$port;charset=$charset";
+        
+        $options = [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES   => false,
+        ];
+
+        try {
+            $this->connection = new PDO($dsn, $user, $pass, $options);
+        } catch (PDOException $e) {
+            throw new RuntimeException("Database connection failed: " . $e->getMessage());
+        }
+    }
+
+    public static function getInstance(): self
+    {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    /**
+     * Executes a query with parameters (Prepared Statements)
+     */
+    public function query(string $sql, array $params = []): \PDOStatement
+    {
+        try {
+            $stmt = $this->connection->prepare($sql);
+            $stmt->execute($params);
+            return $stmt;
+        } catch (PDOException $e) {
+            // In production, log this instead of throwing
+            throw new RuntimeException("Query error: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Fetch a single row
+     */
+    public function fetch(string $sql, array $params = []): ?array
+    {
+        return $this->query($sql, $params)->fetch() ?: null;
+    }
+
+    /**
+     * Fetch all rows
+     */
+    public function fetchAll(string $sql, array $params = []): array
+    {
+        return $this->query($sql, $params)->fetchAll();
+    }
+
+    /**
+     * Get the underlying PDO connection
+     */
+    public function getConnection(): PDO
+    {
+        return $this->connection;
+    }
+}

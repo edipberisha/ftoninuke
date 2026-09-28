@@ -1,0 +1,21 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * FtoniNuke v1.3 - Main Entry Point
+ */
+
+$lockFile = __DIR__ . '/../install/installed.lock';
+
+if (!file_exists($lockFile)) {
+    header('Location: /install/index.php');
+    exit;
+}
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use FtoniNuke\Core\Bootstrap;
+
+// Initialize System
+Bootstrap::run();
