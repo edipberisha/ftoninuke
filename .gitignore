@@ -1,0 +1,4 @@
+
+# Modernize edilmiş uygulamanın uploads'ı
+public/php-modernized/public/uploads/*
+!public/php-modernized/public/uploads/.gitkeep
