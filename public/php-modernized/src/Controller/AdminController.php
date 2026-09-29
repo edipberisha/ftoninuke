@@ -485,12 +485,31 @@ class AdminController
     }
 	
     // ─── Settings ─────────────────────────────────────
-    public function settings(): void
+	
+        public function settings(): void
     {
-        $config = [];
-        try {
-            $config = $this->db->fetch("SELECT * FROM nuke_config LIMIT 1") ?: [];
-        } catch (\Throwable $e) {}
+        $service = new \FtoniNuke\Service\SettingsService();
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data = [
+                'sitename'                 => trim($_POST['sitename'] ?? ''),
+                'theme'                    => trim($_POST['theme'] ?? 'default'),
+                'registration_enabled'     => isset($_POST['registration_enabled']) ? 1 : 0,
+                'email_verification'       => isset($_POST['email_verification']) ? 1 : 0,
+                'default_user_level'       => (int)($_POST['default_user_level'] ?? 1),
+                'comments_require_approval'=> isset($_POST['comments_require_approval']) ? 1 : 0,
+                'captcha_enabled'          => isset($_POST['captcha_enabled']) ? 1 : 0,
+                'comment_rate_limit'       => (int)($_POST['comment_rate_limit'] ?? 5),
+            ];
+            $service->update($data);
+            $_SESSION['flash'] = '✅ Ayarlar güncellendi.';
+            header('Location: /public/admin/settings');
+            exit;
+        }
+
+        $config = $service->all();
+        $flash  = $_SESSION['flash'] ?? null;
+        unset($_SESSION['flash']);
 
         $pageTitle = 'Sistem Ayarları';
         $active    = 'settings';

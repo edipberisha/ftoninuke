@@ -51,6 +51,7 @@ $router->get('/admin/topics',    [AdminController::class, 'topics']);
 $router->get('/admin/menu', [AdminController::class, 'menu']);
 $router->post('/admin/menu', [AdminController::class, 'menu']);
 $router->get('/admin/settings',  [AdminController::class, 'settings']);
+$router->post('/admin/settings', [AdminController::class, 'settings']);
 
 // ─── News CRUD (admin) ─────────────────────────────
 $router->get('/admin/news',         [AdminController::class, 'news']);
