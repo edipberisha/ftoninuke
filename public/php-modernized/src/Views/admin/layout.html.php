@@ -36,6 +36,18 @@
                    class="block px-4 py-2 rounded-lg text-sm font-medium transition <?= ($active ?? '') === 'menu' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white' ?>">
                     🧭 Menü
                 </a>
+				<a href="/public/admin/comments"
+                    class="block px-4 py-2 rounded-lg text-sm font-medium transition <?= ($active ?? '') === 'comments' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white' ?> flex justify-between items-center">
+                   <span>💬 Yorumlar</span>
+                  <?php
+                      try {
+                   $pendingCount = (new \FtoniNuke\Repository\CommentRepository())->countPending();
+                   if ($pendingCount > 0) {
+                     echo '<span class="bg-yellow-500 text-black text-xs font-bold px-2 rounded-full">' . $pendingCount . '</span>';
+                   }
+                   } catch (\Throwable $e) {}
+                   ?>
+                </a>
             </nav>
 
             <div class="mt-8 pt-4 border-t border-gray-800 space-y-1">

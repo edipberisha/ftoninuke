@@ -21,6 +21,7 @@ use FtoniNuke\Controller\HomeController;
 use FtoniNuke\Controller\AuthController;
 use FtoniNuke\Controller\AdminController;
 use FtoniNuke\Controller\Api\UploadController;
+use FtoniNuke\Controller\CommentController;
 
 // Sistemi başlat
 Bootstrap::run();
@@ -44,6 +45,7 @@ $router->get('/admin/widgets',   [AdminController::class, 'widgets']);
 $router->get('/admin/users',     [AdminController::class, 'users']);
 $router->get('/admin/security',  [AdminController::class, 'security']);
 $router->get('/admin/blocks',    [AdminController::class, 'blocks']);
+$router->get('/admin/comments', [AdminController::class, 'comments']);
 $router->get('/admin/topics',    [AdminController::class, 'topics']);
 $router->get('/admin/menu', [AdminController::class, 'menu']);
 $router->post('/admin/menu', [AdminController::class, 'menu']);
@@ -76,5 +78,10 @@ if (isset($_GET['sid']) && is_numeric($_GET['sid']) && strpos($_SERVER['REQUEST_
 // ─── API ────────────────────────────────────────────
 $router->post('/api/upload', [UploadController::class, 'image']);
 $router->get('/api/media', [\FtoniNuke\Controller\Api\MediaController::class, 'list']);
+
+// ─── Yorumlar ────────────────────────────────────────
+$router->post('/comment/submit',    [CommentController::class, 'submit']);
+$router->get('/comment/captcha',    [CommentController::class, 'refreshCaptcha']);
+
 // ─── İsteği işle ────────────────────────────────────
 $router->dispatch();

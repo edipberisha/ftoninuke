@@ -429,6 +429,61 @@ class AdminController
         return $data;
     }
 	
+	    // ══════════════════════════════════════════════════
+    // COMMENTS (yorum moderasyonu)
+    // ══════════════════════════════════════════════════
+    public function comments(): void
+    {
+        $repo   = new \FtoniNuke\Repository\CommentRepository();
+        $filter = $_GET['filter'] ?? 'pending';
+
+        // Aksiyonlar
+        if (isset($_GET['approve']) && is_numeric($_GET['approve'])) {
+            $repo->approve((int)$_GET['approve']);
+            $_SESSION['flash'] = '✅ Yorum onaylandı.';
+            header('Location: /public/admin/comments?filter=' . $filter);
+            exit;
+        }
+
+        if (isset($_GET['unapprove']) && is_numeric($_GET['unapprove'])) {
+            $repo->unapprove((int)$_GET['unapprove']);
+            $_SESSION['flash'] = '⏳ Yorum onaydan kaldırıldı.';
+            header('Location: /public/admin/comments?filter=' . $filter);
+            exit;
+        }
+
+        if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
+            $repo->delete((int)$_GET['delete']);
+            $_SESSION['flash'] = '🗑️ Yorum silindi.';
+            header('Location: /public/admin/comments?filter=' . $filter);
+            exit;
+        }
+
+        if (isset($_GET['ban']) && is_numeric($_GET['ban'])) {
+            $comment = $repo->findById((int)$_GET['ban']);
+            if ($comment && !empty($comment['author_ip'])) {
+                $repo->banIp($comment['author_ip'], 'Admin tarafından yasaklandı');
+                $_SESSION['flash'] = '🚫 IP yasaklandı: ' . $comment['author_ip'];
+            }
+            header('Location: /public/admin/comments?filter=' . $filter);
+            exit;
+        }
+
+        $comments = $repo->all($filter, 200, 0);
+        $pending  = $repo->countPending();
+        $bannedIps = $repo->bannedIps();
+        $flash    = $_SESSION['flash'] ?? null;
+        unset($_SESSION['flash']);
+
+        $pageTitle = 'Yorumlar';
+        $active    = 'comments';
+
+        ob_start();
+        require __DIR__ . '/../Views/admin/comments.html.php';
+        $content = ob_get_clean();
+        require __DIR__ . '/../Views/admin/layout.html.php';
+    }
+	
     // ─── Settings ─────────────────────────────────────
     public function settings(): void
     {

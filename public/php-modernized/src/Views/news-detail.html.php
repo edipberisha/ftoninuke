@@ -213,6 +213,8 @@
                             <a href="/public/">Ana Sayfaya Dön</a>
                         </div>
                     </nav>
+					
+					 <?php require __DIR__ . '/partials/comments.html.php'; ?>
                 </div>
             </main>
 
