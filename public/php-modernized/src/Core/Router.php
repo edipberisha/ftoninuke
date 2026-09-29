@@ -27,21 +27,54 @@ class Router
         $uri = preg_replace('#^/public#', '', $uri) ?: '/';
         $uri = rtrim($uri, '/') ?: '/';
 
-        $handler = $this->routes[$method][$uri] ?? null;
-
-        if ($handler === null) {
-            http_response_code(404);
-            echo '<h1>404 Not Found</h1>';
-            echo '<p>' . htmlspecialchars($method . ' ' . $uri) . '</p>';
-            echo '<p><a href="/public/">Ana sayfaya dön</a></p>';
+        // 1) Statik route kontrolü
+        if (isset($this->routes[$method][$uri])) {
+            $this->invoke($this->routes[$method][$uri], []);
             return;
         }
 
+        // 2) Dinamik route kontrolü (örn: /{slug})
+        foreach ($this->routes[$method] ?? [] as $pattern => $handler) {
+            if (strpos($pattern, '{') === false) continue;
+
+            $regex = $this->patternToRegex($pattern);
+            if (preg_match($regex, $uri, $matches)) {
+                array_shift($matches); // tam eşleşmeyi kaldır
+                $this->invoke($handler, $matches);
+                return;
+            }
+        }
+
+        // 3) 404
+        http_response_code(404);
+        echo '<h1>404 Not Found</h1>';
+        echo '<p>' . htmlspecialchars($method . ' ' . $uri) . '</p>';
+        echo '<p><a href="/public/">Ana sayfaya dön</a></p>';
+    }
+
+    /**
+     * {slug} pattern'ini regex'e çevir
+     * /{slug}          → /([^/]+)
+     * /haber/{slug}    → /haber/([^/]+)
+     * /{slug}.html     → /([^/.]+)\.html
+     */
+    private function patternToRegex(string $pattern): string
+    {
+        $regex = preg_quote($pattern, '#');
+        // \{slug\} → ([^/]+)
+        $regex = preg_replace('#\\\\\{[a-zA-Z_]+\\\\\}#', '([^/]+)', $regex);
+        // Kaçan noktaları geri al (uzantı için)
+        $regex = str_replace('\\.', '\\.', $regex);
+        return '#^' . $regex . '$#';
+    }
+
+    private function invoke(array|callable $handler, array $params): void
+    {
         if (is_array($handler)) {
             [$class, $action] = $handler;
-            (new $class())->$action();
+            (new $class())->$action(...$params);
         } else {
-            $handler();
+            $handler(...$params);
         }
     }
 }

@@ -48,7 +48,7 @@
                         </div>
                         <?php if (!empty($c['story_title'])): ?>
                             <div class="text-xs text-gray-500">
-                                📄 Haber: <a href="/public/?sid=<?= (int)$c['sid'] ?>" target="_blank" class="text-blue-400 hover:underline">
+                                📄 Haber: <a href="/public/<?= htmlspecialchars($c['story_slug'] ?? $c['sid']) ?>" target="_blank" class="text-blue-400 hover:underline">
                                     <?= htmlspecialchars($c['story_title']) ?>
                                 </a>
                             </div>

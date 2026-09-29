@@ -174,7 +174,7 @@
                     <!-- ═══ NAVIGASYON ═══ -->
                     <nav class="post-nav">
                         <?php if (!empty($prevStory)): ?>
-                            <a href="/public/?sid=<?= (int)$prevStory['sid'] ?>" class="post-nav-item prev">
+                            <a href="/public/<?= htmlspecialchars($prevStory['slug'] ?? $prevStory['sid']) ?>" class="post-nav-item prev">
                                 <div class="nav-thumb">
                                     <?php if (!empty($prevStory['image'])): ?>
                                         <img src="<?= htmlspecialchars($prevStory['image']) ?>" alt="">
@@ -192,7 +192,7 @@
                         <?php endif; ?>
 
                         <?php if (!empty($nextStory)): ?>
-                            <a href="/public/?sid=<?= (int)$nextStory['sid'] ?>" class="post-nav-item next">
+                            <a href="/public/<?= htmlspecialchars($nextStory['slug'] ?? $nextStory['sid']) ?>" class="post-nav-item next">
                                 <div class="nav-thumb">
                                     <?php if (!empty($nextStory['image'])): ?>
                                         <img src="<?= htmlspecialchars($nextStory['image']) ?>" alt="">

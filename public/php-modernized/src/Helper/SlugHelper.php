@@ -4,38 +4,39 @@ declare(strict_types=1);
 
 namespace FtoniNuke\Helper;
 
-/**
- * SlugHelper - Generates SEO-friendly URLs for articles.
- */
 class SlugHelper
 {
     /**
-     * Create a slug from a string
+     * SEO dostu slug üret (Türkçe karakter desteği)
      */
     public static function slugify(string $text): string
     {
-        // Replace non-letter or digits by -
-        $text = preg_replace('~[^\pL\d]+~u', '-', $text);
+        // Türkçe karakterler
+        $tr = ['ç','ğ','ı','i','ö','ş','ü','Ç','Ğ','İ','Ö','Ş','Ü','â','Â','î','Î','û','Û'];
+        $en = ['c','g','i','i','o','s','u','c','g','i','o','s','u','a','a','i','i','u','u'];
+        $text = str_replace($tr, $en, $text);
 
-        // Transliterate
-        $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
+        // Diğer Unicode karakterleri ASCII'ye çevir
+        $text = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $text) ?: $text;
 
-        // Remove unwanted characters
-        $text = preg_replace('~[^-\w]+~', '', $text);
+        // Küçük harf
+        $text = mb_strtolower($text, 'UTF-8');
 
-        // Trim
+        // Alfa-numerik olmayanları tireye çevir
+        $text = preg_replace('/[^a-z0-9]+/', '-', $text);
+
+        // Baştaki/sondaki tireleri temizle
         $text = trim($text, '-');
 
-        // Remove duplicate -
-        $text = preg_replace('~-+~', '-', $text);
+        // Çoklu tireleri tek tireye indir
+        $text = preg_replace('/-+/', '-', $text);
 
-        // Lowercase
-        $text = strtolower($text);
-
-        if (empty($text)) {
-            return 'n-a';
+        // Çok uzun slug'ları kes (200 karakter)
+        if (mb_strlen($text) > 200) {
+            $text = mb_substr($text, 0, 200);
+            $text = rtrim($text, '-');
         }
 
-        return $text;
+        return $text !== '' ? $text : 'n-a';
     }
 }

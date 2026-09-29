@@ -33,7 +33,7 @@
                 <td class="p-4 text-gray-400"><?= htmlspecialchars($n['author_name'] ?? $n['aid'] ?? '-') ?></td>
                 <td class="p-4 text-gray-500"><?= date('d.m.Y H:i', (int)$n['time']) ?></td>
                 <td class="p-4 text-right space-x-2">
-                    <a href="/public/?sid=<?= (int)$n['sid'] ?>" target="_blank"
+                    <a href="/public/<?= htmlspecialchars($n['slug'] ?? $n['sid']) ?>" target="_blank"
                        class="text-gray-400 hover:text-white text-xs">👁️ Görüntüle</a>
                     <a href="/public/admin/news/edit?sid=<?= (int)$n['sid'] ?>"
                        class="text-blue-400 hover:text-blue-300 text-xs">✏️ Düzenle</a>

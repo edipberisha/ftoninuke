@@ -37,7 +37,7 @@ class CommentRepository
             default   => '',
         };
         return $this->db->fetchAll(
-            "SELECT c.*, s.title AS story_title
+            "SELECT c.*, s.title AS story_title, s.slug AS story_slug
              FROM nuke_comments c
              LEFT JOIN nuke_stories s ON s.sid = c.sid
              $where

@@ -22,6 +22,7 @@ use FtoniNuke\Controller\AuthController;
 use FtoniNuke\Controller\AdminController;
 use FtoniNuke\Controller\Api\UploadController;
 use FtoniNuke\Controller\CommentController;
+use FtoniNuke\Helper\SlugHelper;
 
 // Sistemi başlat
 Bootstrap::run();
@@ -82,6 +83,12 @@ $router->get('/api/media', [\FtoniNuke\Controller\Api\MediaController::class, 'l
 // ─── Yorumlar ────────────────────────────────────────
 $router->post('/comment/submit',    [CommentController::class, 'submit']);
 $router->get('/comment/captcha',    [CommentController::class, 'refreshCaptcha']);
+
+// ─── SEO URL — Haber Detay (slug ile) ────────────
+$router->get('/{slug}', function(string $slug) {
+    $slug = preg_replace('/\.html?$/', '', $slug); // .html uzantısını temizle
+    (new HomeController())->showBySlug($slug);
+});
 
 // ─── İsteği işle ────────────────────────────────────
 $router->dispatch();

@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= htmlspecialchars($siteName) ?></title>
+    <meta name="description" content="<?= htmlspecialchars($siteName) ?> - Son haberler ve güncel içerikler">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
     <style>
         * { box-sizing: border-box; }
         body { font-family: -apple-system, system-ui, sans-serif; margin: 0; padding: 0 20px 40px; background: #f0f2f5; color: #222; }
         .container { max-width: 1280px; margin: 0 auto; }
 
-        /* 3 sütunlu grid */
         .layout-grid {
             display: grid;
             grid-template-columns: 240px 1fr 260px;
@@ -77,7 +77,6 @@
 
         footer { text-align: center; color: #95a5a6; margin-top: 40px; padding: 20px; font-size: .9em; }
 
-        /* Responsive */
         @media (max-width: 1000px) {
             .layout-grid { grid-template-columns: 1fr; }
             .col-left, .col-right { position: static; }
@@ -94,6 +93,16 @@
 <body>
     <div class="container">
         <?php require __DIR__ . '/partials/header.html.php'; ?>
+
+        <?php
+        // SEO URL helper — slug varsa slug, yoksa sid
+        $newsUrl = function(array $item): string {
+            if (!empty($item['slug'])) {
+                return '/public/' . htmlspecialchars($item['slug']);
+            }
+            return '/public/?sid=' . (int)$item['sid'];
+        };
+        ?>
 
         <div class="layout-grid">
 
@@ -113,7 +122,7 @@
                                 <?php foreach ($featured as $item): ?>
                                     <div class="swiper-slide">
                                         <?php if (!empty($item['image'])): ?>
-                                            <img src="<?= htmlspecialchars($item['image']) ?>" alt="">
+                                            <img src="<?= htmlspecialchars($item['image']) ?>" alt="<?= htmlspecialchars($item['title']) ?>">
                                         <?php else: ?>
                                             <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='600'%3E%3Crect fill='%232c3e50' width='1200' height='600'/%3E%3Ctext x='600' y='300' font-size='120' text-anchor='middle' fill='%2334495e'%3E📰%3C/text%3E%3C/svg%3E" alt="">
                                         <?php endif; ?>
@@ -121,7 +130,7 @@
                                             <?php if (!empty($item['topic_name'])): ?>
                                                 <span class="cat-tag"><?= htmlspecialchars($item['topic_name']) ?></span>
                                             <?php endif; ?>
-                                            <h2><a href="/public/?sid=<?= (int)$item['sid'] ?>"><?= htmlspecialchars($item['title']) ?></a></h2>
+                                            <h2><a href="<?= $newsUrl($item) ?>"><?= htmlspecialchars($item['title']) ?></a></h2>
                                             <div class="meta">
                                                 👤 <?= htmlspecialchars($item['author_name'] ?? 'Bilinmeyen') ?>
                                                 &nbsp;•&nbsp;
@@ -143,13 +152,13 @@
                             <div class="news-card">
                                 <?php if (!empty($item['image'])): ?>
                                     <div class="news-image">
-                                        <img src="<?= htmlspecialchars($item['image']) ?>" alt="" loading="lazy">
+                                        <img src="<?= htmlspecialchars($item['image']) ?>" alt="<?= htmlspecialchars($item['title']) ?>" loading="lazy">
                                     </div>
                                 <?php else: ?>
                                     <div class="news-image empty">📰</div>
                                 <?php endif; ?>
                                 <div class="news-body">
-                                    <a class="title" href="/public/?sid=<?= (int)$item['sid'] ?>">
+                                    <a class="title" href="<?= $newsUrl($item) ?>">
                                         <?= htmlspecialchars($item['title']) ?>
                                     </a>
                                     <div class="news-meta">
@@ -162,7 +171,7 @@
                                     <div class="news-summary">
                                         <?= htmlspecialchars(mb_substr(strip_tags($item['hometext'] ?? ''), 0, 200)) ?>…
                                     </div>
-                                    <a class="read-more" href="/public/?sid=<?= (int)$item['sid'] ?>">Devamını Oku</a>
+                                    <a class="read-more" href="<?= $newsUrl($item) ?>">Devamını Oku</a>
                                 </div>
                             </div>
                         <?php endforeach; ?>
