@@ -1,0 +1,14 @@
+# FtoniNuke robots.txt
+
+User-agent: *
+Allow: /
+
+Disallow: /public/admin/
+Disallow: /public/install/
+Disallow: /public/login
+Disallow: /public/logout
+Disallow: /public/comment/
+Disallow: /public/api/
+Disallow: /*?sid=*
+
+Sitemap: /public/sitemap.php
