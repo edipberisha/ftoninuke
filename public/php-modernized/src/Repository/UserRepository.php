@@ -6,84 +6,136 @@ namespace FtoniNuke\Repository;
 
 use FtoniNuke\Core\Database;
 
-/**
- * UserRepository - Handles all database operations for nuke_users table.
- */
 class UserRepository
 {
     private Database $db;
-    private string $table;
 
     public function __construct()
     {
         $this->db = Database::getInstance();
-        $this->table = ($_ENV['DB_PREFIX'] ?? 'nuke_') . 'users';
     }
 
-    /**
-     * Find a user by username
-     */
-    public function findByUsername(string $username): ?array
+    public function all(string $orderBy = 'user_id DESC'): array
     {
-        $sql = "SELECT * FROM {$this->table} WHERE username = :username LIMIT 1";
-        return $this->db->fetch($sql, ['username' => $username]);
+        return $this->db->fetchAll(
+            "SELECT user_id, username, user_email, user_level, created_at
+             FROM nuke_users
+             ORDER BY $orderBy"
+        );
     }
 
-    /**
-     * Find a user by ID
-     */
     public function findById(int $id): ?array
     {
-        $sql = "SELECT * FROM {$this->table} WHERE user_id = :id LIMIT 1";
-        return $this->db->fetch($sql, ['id' => $id]);
+        return $this->db->fetch(
+            "SELECT * FROM nuke_users WHERE user_id = ? LIMIT 1",
+            [$id]
+        );
     }
 
-    /**
-     * Update user password with modern hash
-     */
-    public function updatePassword(int $userId, string $hashedPassword): bool
+    public function findByUsername(string $username): ?array
     {
-        $sql = "UPDATE {$this->table} SET user_password = :pass WHERE user_id = :id";
-        return (bool) $this->db->query($sql, [
-            'pass' => $hashedPassword,
-            'id'   => $userId
-        ]);
+        return $this->db->fetch(
+            "SELECT * FROM nuke_users WHERE username = ? LIMIT 1",
+            [$username]
+        );
     }
 
-    /**
-     * Update user profile information
-     */
-    public function updateProfile(int $userId, array $data): bool
+    public function findByEmail(string $email): ?array
     {
-        $allowedFields = ['user_email', 'name', 'user_occ', 'user_from'];
-        $updates = [];
-        $params = ['id' => $userId];
+        return $this->db->fetch(
+            "SELECT * FROM nuke_users WHERE user_email = ? LIMIT 1",
+            [$email]
+        );
+    }
 
-        foreach ($data as $key => $value) {
-            if (in_array($key, $allowedFields)) {
-                $updates[] = "{$key} = :{$key}";
-                $params[$key] = $value;
-            }
+    public function usernameExists(string $username, int $exceptId = 0): bool
+    {
+        $row = $this->db->fetch(
+            "SELECT user_id FROM nuke_users WHERE username = ? AND user_id != ? LIMIT 1",
+            [$username, $exceptId]
+        );
+        return $row !== null;
+    }
+
+    public function emailExists(string $email, int $exceptId = 0): bool
+    {
+        $row = $this->db->fetch(
+            "SELECT user_id FROM nuke_users WHERE user_email = ? AND user_id != ? LIMIT 1",
+            [$email, $exceptId]
+        );
+        return $row !== null;
+    }
+
+    public function create(array $data): int
+    {
+        $this->db->query(
+            "INSERT INTO nuke_users (username, user_email, user_password, user_level, created_at)
+             VALUES (?, ?, ?, ?, ?)",
+            [
+                $data['username'],
+                $data['user_email'],
+                password_hash($data['password'], PASSWORD_BCRYPT),
+                (int)($data['user_level'] ?? 1),
+                time(),
+            ]
+        );
+        return (int)$this->db->getConnection()->lastInsertId();
+    }
+
+    public function update(int $id, array $data): bool
+    {
+        $fields = [
+            'username'    => $data['username'],
+            'user_email'  => $data['user_email'],
+            'user_level'  => (int)($data['user_level'] ?? 1),
+        ];
+
+        if (!empty($data['password'])) {
+            $fields['user_password'] = password_hash($data['password'], PASSWORD_BCRYPT);
         }
 
-        if (empty($updates)) {
-            return false;
+        $sets = [];
+        $values = [];
+        foreach ($fields as $k => $v) {
+            $sets[] = "$k = ?";
+            $values[] = $v;
         }
+        $values[] = $id;
 
-        $sql = "UPDATE {$this->table} SET " . implode(', ', $updates) . " WHERE user_id = :id";
-        return (bool) $this->db->query($sql, $params);
+        $this->db->query(
+            "UPDATE nuke_users SET " . implode(', ', $sets) . " WHERE user_id = ?",
+            $values
+        );
+        return true;
     }
 
-    /**
-     * Update last login timestamp
-     */
-    public function updateLastLogin(int $userId): void
+    public function delete(int $id): bool
     {
-        // Legacy Nuke used 'user_lastvisit', let's stick to it or migrate
-        $sql = "UPDATE {$this->table} SET user_lastvisit = :now WHERE user_id = :id";
-        $this->db->query($sql, [
-            'now' => time(),
-            'id'  => $userId
-        ]);
+        $this->db->query("DELETE FROM nuke_users WHERE user_id = ?", [$id]);
+        return true;
+    }
+
+    public function updatePassword(int $id, string $newPassword): bool
+    {
+        $this->db->query(
+            "UPDATE nuke_users SET user_password = ? WHERE user_id = ?",
+            [password_hash($newPassword, PASSWORD_BCRYPT), $id]
+        );
+        return true;
+    }
+
+    public function count(): int
+    {
+        $row = $this->db->fetch("SELECT COUNT(*) AS c FROM nuke_users");
+        return (int)($row['c'] ?? 0);
+    }
+
+    public function countByLevel(int $level): int
+    {
+        $row = $this->db->fetch(
+            "SELECT COUNT(*) AS c FROM nuke_users WHERE user_level = ?",
+            [$level]
+        );
+        return (int)($row['c'] ?? 0);
     }
 }

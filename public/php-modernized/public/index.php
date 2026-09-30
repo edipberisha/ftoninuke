@@ -37,6 +37,8 @@ $router->get('/', [HomeController::class, 'index']);
 $router->get('/login',  [AuthController::class, 'showLogin']);
 $router->post('/login', [AuthController::class, 'login']);
 $router->get('/logout', [AuthController::class, 'logout']);
+$router->get('/register',  [AuthController::class, 'showRegister']);
+$router->post('/register', [AuthController::class, 'register']);
 
 // ─── Admin ─────────────────────────────────────────
 $router->get('/admin',           [AdminController::class, 'dashboard']);
@@ -44,6 +46,11 @@ $router->get('/admin/media',     [AdminController::class, 'media']);
 $router->get('/admin/themes',    [AdminController::class, 'themes']);
 $router->get('/admin/widgets',   [AdminController::class, 'widgets']);
 $router->get('/admin/users',     [AdminController::class, 'users']);
+$router->get('/admin/users/create',  [AdminController::class, 'userCreate']);
+$router->post('/admin/users/create', [AdminController::class, 'userCreate']);
+$router->get('/admin/users/edit',    [AdminController::class, 'userEdit']);
+$router->post('/admin/users/edit',   [AdminController::class, 'userEdit']);
+$router->get('/admin/users/delete',  [AdminController::class, 'userDelete']);
 $router->get('/admin/security',  [AdminController::class, 'security']);
 $router->get('/admin/blocks',    [AdminController::class, 'blocks']);
 $router->get('/admin/comments', [AdminController::class, 'comments']);

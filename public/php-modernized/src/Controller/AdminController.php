@@ -131,15 +131,12 @@ class AdminController
     }
 
     // ─── Users ────────────────────────────────────────
-    public function users(): void
+        public function users(): void
     {
-        $users = [];
-        try {
-            $users = $this->db->fetchAll(
-                "SELECT user_id, username, user_email, user_level, created_at
-                 FROM nuke_users ORDER BY user_id DESC"
-            );
-        } catch (\Throwable $e) {}
+        $repo   = new \FtoniNuke\Repository\UserRepository();
+        $users  = $repo->all();
+        $flash  = $_SESSION['flash'] ?? null;
+        unset($_SESSION['flash']);
 
         $pageTitle = 'Kullanıcılar';
         $active    = 'users';
@@ -148,6 +145,105 @@ class AdminController
         require __DIR__ . '/../Views/admin/users.html.php';
         $content = ob_get_clean();
         require __DIR__ . '/../Views/admin/layout.html.php';
+    }
+
+    public function userCreate(): void
+    {
+        $errors = [];
+        $data   = ['username' => '', 'user_email' => '', 'user_level' => 1];
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data['username']   = trim($_POST['username'] ?? '');
+            $data['user_email'] = trim($_POST['user_email'] ?? '');
+            $data['user_level'] = (int)($_POST['user_level'] ?? 1);
+
+            $service = new \FtoniNuke\Service\UserService();
+            $result  = $service->create([
+                'username'   => $data['username'],
+                'user_email' => $data['user_email'],
+                'password'   => $_POST['password'] ?? '',
+                'user_level' => $data['user_level'],
+            ]);
+
+            if ($result['ok']) {
+                $_SESSION['flash'] = '✅ Kullanıcı oluşturuldu: ' . $data['username'];
+                header('Location: /public/admin/users');
+                exit;
+            }
+
+            $errors[] = $result['error'];
+        }
+
+        $pageTitle = 'Yeni Kullanıcı';
+        $active    = 'users';
+        $formMode  = 'create';
+
+        ob_start();
+        require __DIR__ . '/../Views/admin/user-form.html.php';
+        $content = ob_get_clean();
+        require __DIR__ . '/../Views/admin/layout.html.php';
+    }
+
+    public function userEdit(): void
+    {
+        $id     = (int)($_GET['id'] ?? 0);
+        $repo   = new \FtoniNuke\Repository\UserRepository();
+        $user   = $repo->findById($id);
+
+        if (!$user) {
+            $_SESSION['flash'] = '❌ Kullanıcı bulunamadı.';
+            header('Location: /public/admin/users');
+            exit;
+        }
+
+        $errors = [];
+        $data   = $user;
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data['username']   = trim($_POST['username'] ?? '');
+            $data['user_email'] = trim($_POST['user_email'] ?? '');
+            $data['user_level'] = (int)($_POST['user_level'] ?? 1);
+
+            $service = new \FtoniNuke\Service\UserService();
+            $result  = $service->update($id, [
+                'username'   => $data['username'],
+                'user_email' => $data['user_email'],
+                'password'   => $_POST['password'] ?? '',
+                'user_level' => $data['user_level'],
+            ]);
+
+            if ($result['ok']) {
+                $_SESSION['flash'] = '✅ Kullanıcı güncellendi.';
+                header('Location: /public/admin/users');
+                exit;
+            }
+
+            $errors[] = $result['error'];
+        }
+
+        $pageTitle = 'Kullanıcı Düzenle';
+        $active    = 'users';
+        $formMode  = 'edit';
+
+        ob_start();
+        require __DIR__ . '/../Views/admin/user-form.html.php';
+        $content = ob_get_clean();
+        require __DIR__ . '/../Views/admin/layout.html.php';
+    }
+
+    public function userDelete(): void
+    {
+        $id = (int)($_GET['id'] ?? 0);
+
+        $service = new \FtoniNuke\Service\UserService();
+        $result  = $service->delete($id);
+
+        $_SESSION['flash'] = $result['ok']
+            ? '🗑️ Kullanıcı silindi.'
+            : '❌ ' . $result['error'];
+
+        header('Location: /public/admin/users');
+        exit;
     }
 
     // ─── Security ─────────────────────────────────────

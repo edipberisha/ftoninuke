@@ -174,8 +174,32 @@ $currentUrl = $_SERVER['REQUEST_URI'] ?? '/';
                     </li>
                 <?php endforeach; ?>
             </ul>
+			
         </nav>
-
+<?php
+$settings = new \FtoniNuke\Service\SettingsService();
+$isLoggedIn = !empty($_SESSION['user_id']);
+?>
+<?php if (!$isLoggedIn): ?>
+    <li>
+        <a href="/public/login" style="color: #60a5fa;">
+            🔑 Giriş
+        </a>
+    </li>
+    <?php if ($settings->isRegistrationEnabled()): ?>
+        <li>
+            <a href="/public/register" style="color: #10b981;">
+                ✨ Kayıt Ol
+            </a>
+        </li>
+    <?php endif; ?>
+<?php else: ?>
+    <li>
+        <a href="/public/admin" style="color: #60a5fa;">
+            👤 <?= htmlspecialchars($_SESSION['username'] ?? '') ?>
+        </a>
+    </li>
+<?php endif; ?>
         <button class="mobile-toggle" onclick="document.getElementById('main-nav').classList.toggle('open')">☰</button>
     </div>
 </header>
