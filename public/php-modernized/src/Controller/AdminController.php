@@ -1001,4 +1001,115 @@ class AdminController
         header('Location: /public/admin/news');
         exit;
     }
+
+    // ══════════════════════════════════════════════════
+    // IMPORT (PHP-Nuke / WordPress göç)
+    // ══════════════════════════════════════════════════
+    public function import(): void
+    {
+        // Geçmiş log'ları getir
+        $logs = [];
+        try {
+            $logs = $this->db->fetchAll(
+                "SELECT * FROM nuke_import_log ORDER BY started_at DESC LIMIT 20"
+            );
+        } catch (\Throwable $e) {}
+
+        $flash = $_SESSION['flash'] ?? null;
+        unset($_SESSION['flash']);
+
+        $pageTitle = 'İçeri Aktar';
+        $active    = 'import';
+
+        ob_start();
+        require __DIR__ . '/../Views/admin/import.html.php';
+        $content = ob_get_clean();
+        require __DIR__ . '/../Views/admin/layout.html.php';
+    }
+
+    public function importRun(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: /public/admin/import');
+            exit;
+        }
+
+        $host    = trim($_POST['host'] ?? '');
+        $name    = trim($_POST['dbname'] ?? '');
+        $user    = trim($_POST['user'] ?? '');
+        $pass    = $_POST['pass'] ?? '';
+        $port    = (int)($_POST['port'] ?? 3306);
+        $prefix  = trim($_POST['prefix'] ?? 'nuke_');
+        $dryRun  = isset($_POST['dry_run']);
+        $steps   = $_POST['steps'] ?? [];
+
+        if ($host === '' || $name === '' || $user === '') {
+            $_SESSION['flash'] = '❌ Bağlantı bilgileri eksik.';
+            header('Location: /public/admin/import');
+            exit;
+        }
+
+        if (empty($steps)) {
+            $_SESSION['flash'] = '❌ En az bir adım seçin.';
+            header('Location: /public/admin/import');
+            exit;
+        }
+
+        try {
+            $importer = new \FtoniNuke\Service\Import\PHPNukeImporter($prefix);
+            $importer->connect([
+                'host' => $host,
+                'name' => $name,
+                'user' => $user,
+                'pass' => $pass,
+                'port' => $port,
+            ]);
+            $importer->setDryRun($dryRun);
+
+            $preflight = $importer->preflight();
+            if (!$preflight['ok']) {
+                $_SESSION['flash'] = '❌ Kaynak veritabanı uygun değil. Gerekli tablolar eksik.';
+                header('Location: /public/admin/import');
+                exit;
+            }
+
+            $results = $importer->importAll($steps);
+
+            $_SESSION['import_report'] = [
+                'dry_run'   => $dryRun,
+                'preflight' => $preflight,
+                'stats'     => $importer->getStats(),
+                'errors'    => $importer->getErrors(),
+                'warnings'  => $importer->getWarnings(),
+            ];
+
+            header('Location: /public/admin/import/report');
+            exit;
+
+        } catch (\Throwable $e) {
+            $_SESSION['flash'] = '❌ Hata: ' . $e->getMessage();
+            header('Location: /public/admin/import');
+            exit;
+        }
+    }
+
+    public function importReport(): void
+    {
+        $report = $_SESSION['import_report'] ?? null;
+        unset($_SESSION['import_report']);
+
+        if (!$report) {
+            header('Location: /public/admin/import');
+            exit;
+        }
+
+        $pageTitle = 'İçeri Aktarma Raporu';
+        $active    = 'import';
+
+        ob_start();
+        require __DIR__ . '/../Views/admin/import-report.html.php';
+        $content = ob_get_clean();
+        require __DIR__ . '/../Views/admin/layout.html.php';
+    }
+
 }

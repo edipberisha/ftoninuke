@@ -73,6 +73,11 @@ $router->get('/admin/pages/toggle',  [AdminController::class, 'pageToggle']);
 // Messages
 $router->get('/admin/messages', [AdminController::class, 'messages']);
 
+// Import
+$router->get('/admin/import',        [AdminController::class, 'import']);
+$router->post('/admin/import/run',   [AdminController::class, 'importRun']);
+$router->get('/admin/import/report', [AdminController::class, 'importReport']);
+
 // ─── News CRUD (admin) ─────────────────────────────
 $router->get('/admin/news',         [AdminController::class, 'news']);
 $router->get('/admin/news/create',  [AdminController::class, 'newsCreate']);
