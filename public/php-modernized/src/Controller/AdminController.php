@@ -580,6 +580,173 @@ class AdminController
         require __DIR__ . '/../Views/admin/layout.html.php';
     }
 	
+	    // ══════════════════════════════════════════════════
+    // PAGES (statik sayfalar)
+    // ══════════════════════════════════════════════════
+    public function pages(): void
+    {
+        $repo   = new \FtoniNuke\Repository\PageRepository();
+        $pages  = $repo->all();
+        $flash  = $_SESSION['flash'] ?? null;
+        unset($_SESSION['flash']);
+
+        $pageTitle = 'Sayfalar';
+        $active    = 'pages';
+
+        ob_start();
+        require __DIR__ . '/../Views/admin/pages.html.php';
+        $content = ob_get_clean();
+        require __DIR__ . '/../Views/admin/layout.html.php';
+    }
+
+    public function pageCreate(): void
+    {
+        $errors = [];
+        $data = [
+            'title' => '', 'slug' => '', 'content' => '',
+            'template' => 'default', 'meta_description' => '',
+            'active' => 1, 'show_in_menu' => 0, 'sort_order' => 0,
+        ];
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data['title']            = trim($_POST['title'] ?? '');
+            $data['content']          = $_POST['content'] ?? '';
+            $data['template']         = $_POST['template'] ?? 'default';
+            $data['meta_description'] = trim($_POST['meta_description'] ?? '');
+            $data['active']           = isset($_POST['active']) ? 1 : 0;
+            $data['show_in_menu']     = isset($_POST['show_in_menu']) ? 1 : 0;
+            $data['sort_order']       = (int)($_POST['sort_order'] ?? 0);
+
+            $repo = new \FtoniNuke\Repository\PageRepository();
+            $data['slug'] = !empty($_POST['slug'])
+                ? \FtoniNuke\Helper\SlugHelper::slugify($_POST['slug'])
+                : $repo->makeUniqueSlug($data['title']);
+
+            if ($data['title'] === '') $errors[] = 'Başlık gerekli.';
+            if ($repo->slugExists($data['slug'])) $errors[] = 'Bu slug zaten kullanılıyor.';
+
+            if (empty($errors)) {
+                $repo->create($data);
+                $_SESSION['flash'] = '✅ Sayfa oluşturuldu.';
+                header('Location: /public/admin/pages');
+                exit;
+            }
+        }
+
+        $pageTitle = 'Yeni Sayfa';
+        $active    = 'pages';
+        $formMode  = 'create';
+        $page      = $data;
+
+        ob_start();
+        require __DIR__ . '/../Views/admin/page-form.html.php';
+        $content = ob_get_clean();
+        require __DIR__ . '/../Views/admin/layout.html.php';
+    }
+
+    public function pageEdit(): void
+    {
+        $id   = (int)($_GET['id'] ?? 0);
+        $repo = new \FtoniNuke\Repository\PageRepository();
+        $page = $repo->findById($id);
+
+        if (!$page) {
+            $_SESSION['flash'] = '❌ Sayfa bulunamadı.';
+            header('Location: /public/admin/pages');
+            exit;
+        }
+
+        $errors = [];
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $page['title']            = trim($_POST['title'] ?? '');
+            $page['content']          = $_POST['content'] ?? '';
+            $page['template']         = $_POST['template'] ?? 'default';
+            $page['meta_description'] = trim($_POST['meta_description'] ?? '');
+            $page['active']           = isset($_POST['active']) ? 1 : 0;
+            $page['show_in_menu']     = isset($_POST['show_in_menu']) ? 1 : 0;
+            $page['sort_order']       = (int)($_POST['sort_order'] ?? 0);
+
+            $newSlug = !empty($_POST['slug'])
+                ? \FtoniNuke\Helper\SlugHelper::slugify($_POST['slug'])
+                : $repo->makeUniqueSlug($page['title'], $id);
+
+            if ($page['title'] === '') $errors[] = 'Başlık gerekli.';
+            if ($repo->slugExists($newSlug, $id)) $errors[] = 'Bu slug zaten kullanılıyor.';
+
+            $page['slug'] = $newSlug;
+
+            if (empty($errors)) {
+                $repo->update($id, $page);
+                $_SESSION['flash'] = '✅ Sayfa güncellendi.';
+                header('Location: /public/admin/pages');
+                exit;
+            }
+        }
+
+        $pageTitle = 'Sayfa Düzenle';
+        $active    = 'pages';
+        $formMode  = 'edit';
+
+        ob_start();
+        require __DIR__ . '/../Views/admin/page-form.html.php';
+        $content = ob_get_clean();
+        require __DIR__ . '/../Views/admin/layout.html.php';
+    }
+
+    public function pageDelete(): void
+    {
+        $id   = (int)($_GET['id'] ?? 0);
+        $repo = new \FtoniNuke\Repository\PageRepository();
+        $repo->delete($id);
+
+        $_SESSION['flash'] = '🗑️ Sayfa silindi.';
+        header('Location: /public/admin/pages');
+        exit;
+    }
+
+    public function pageToggle(): void
+    {
+        $id   = (int)($_GET['id'] ?? 0);
+        $repo = new \FtoniNuke\Repository\PageRepository();
+        $repo->toggleActive($id);
+        header('Location: /public/admin/pages');
+        exit;
+    }
+
+    // ══════════════════════════════════════════════════
+    // CONTACT MESSAGES (iletişim formu mesajları)
+    // ══════════════════════════════════════════════════
+    public function messages(): void
+    {
+        $repo  = new \FtoniNuke\Repository\PageRepository();
+
+        if (isset($_GET['read']) && is_numeric($_GET['read'])) {
+            $repo->markMessageRead((int)$_GET['read']);
+            header('Location: /public/admin/messages');
+            exit;
+        }
+
+        if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
+            $repo->deleteContactMessage((int)$_GET['delete']);
+            $_SESSION['flash'] = '🗑️ Mesaj silindi.';
+            header('Location: /public/admin/messages');
+            exit;
+        }
+
+        $messages = $repo->allContactMessages(100);
+        $flash    = $_SESSION['flash'] ?? null;
+        unset($_SESSION['flash']);
+
+        $pageTitle = 'İletişim Mesajları';
+        $active    = 'messages';
+
+        ob_start();
+        require __DIR__ . '/../Views/admin/messages.html.php';
+        $content = ob_get_clean();
+        require __DIR__ . '/../Views/admin/layout.html.php';
+    }
+	
     // ─── Settings ─────────────────────────────────────
 	
         public function settings(): void
@@ -596,6 +763,22 @@ class AdminController
                 'comments_require_approval'=> isset($_POST['comments_require_approval']) ? 1 : 0,
                 'captcha_enabled'          => isset($_POST['captcha_enabled']) ? 1 : 0,
                 'comment_rate_limit'       => (int)($_POST['comment_rate_limit'] ?? 5),
+                'smtp_host'                => trim($_POST['smtp_host'] ?? ''),
+                'smtp_port'                => (int)($_POST['smtp_port'] ?? 587),
+                'smtp_user'                => trim($_POST['smtp_user'] ?? ''),
+                'smtp_pass'                => $_POST['smtp_pass'] ?? '',
+                'smtp_secure'              => $_POST['smtp_secure'] ?? 'tls',
+                'smtp_from_email'          => trim($_POST['smtp_from_email'] ?? ''),
+                'smtp_from_name'           => trim($_POST['smtp_from_name'] ?? 'FtoniNuke'),
+                'contact_email'            => trim($_POST['contact_email'] ?? ''),
+				'smtp_host'        => trim($_POST['smtp_host'] ?? ''),
+                'smtp_port'        => (int)($_POST['smtp_port'] ?? 587),
+                'smtp_user'        => trim($_POST['smtp_user'] ?? ''),
+                'smtp_pass'        => $_POST['smtp_pass'] ?? '',
+                'smtp_secure'      => $_POST['smtp_secure'] ?? 'tls',
+                'smtp_from_email'  => trim($_POST['smtp_from_email'] ?? ''),
+                'smtp_from_name'   => trim($_POST['smtp_from_name'] ?? 'FtoniNuke'),
+                'contact_email'    => trim($_POST['contact_email'] ?? ''),
             ];
             $service->update($data);
             $_SESSION['flash'] = '✅ Ayarlar güncellendi.';
@@ -616,6 +799,49 @@ class AdminController
         require __DIR__ . '/../Views/admin/layout.html.php';
     }
 
+    public function settingsTestMail(): void
+    {
+        header('Content-Type: application/json; charset=utf-8');
+
+        try {
+            // Önce formu kaydet
+            if (!empty($_POST['smtp_host'])) {
+                $service = new \FtoniNuke\Service\SettingsService();
+                $service->update([
+                    'smtp_host'       => trim($_POST['smtp_host'] ?? ''),
+                    'smtp_port'       => (int)($_POST['smtp_port'] ?? 587),
+                    'smtp_user'       => trim($_POST['smtp_user'] ?? ''),
+                    'smtp_pass'       => $_POST['smtp_pass'] ?? '',
+                    'smtp_secure'     => $_POST['smtp_secure'] ?? 'tls',
+                    'smtp_from_email' => trim($_POST['smtp_from_email'] ?? ''),
+                    'smtp_from_name'  => trim($_POST['smtp_from_name'] ?? 'FtoniNuke'),
+                    'contact_email'   => trim($_POST['contact_email'] ?? ''),
+                ]);
+            }
+
+            $to = trim($_POST['test_mail_to'] ?? '');
+            if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
+                echo json_encode(['ok' => false, 'error' => 'Geçersiz e-posta adresi.']);
+                return;
+            }
+
+            $mailer = new \FtoniNuke\Service\MailService();
+
+            if (!$mailer->isConfigured()) {
+                echo json_encode(['ok' => false, 'error' => 'SMTP ayarları eksik. Sunucu, kullanıcı ve şifre gerekli.']);
+                return;
+            }
+
+            $html = '<h2>FtoniNuke Test Maili</h2><p>Bu bir test mesajıdır. Mail sistemi doğru çalışıyor! 🎉</p><p>Tarih: ' . date('d.m.Y H:i:s') . '</p>';
+
+            $mailer->send($to, 'FtoniNuke SMTP Test', $html);
+
+            echo json_encode(['ok' => true, 'message' => 'Test maili gönderildi: ' . $to]);
+        } catch (\Throwable $e) {
+            echo json_encode(['ok' => false, 'error' => $e->getMessage()]);
+        }
+    }
+	
     // ══════════════════════════════════════════════════
     // NEWS CRUD
     // ══════════════════════════════════════════════════

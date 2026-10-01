@@ -59,6 +59,8 @@ class SettingsService
             'sitename', 'theme',
             'registration_enabled', 'email_verification', 'default_user_level',
             'comments_require_approval', 'captcha_enabled', 'comment_rate_limit',
+			'smtp_host', 'smtp_port', 'smtp_user', 'smtp_pass',
+            'smtp_secure', 'smtp_from_email', 'smtp_from_name', 'contact_email',
         ];
 
         $sets = [];

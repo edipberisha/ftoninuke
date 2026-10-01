@@ -49,6 +49,7 @@
         <button type="button" class="settings-tab active" data-tab="general">⚙️ Genel</button>
         <button type="button" class="settings-tab" data-tab="membership">👥 Üyelik</button>
         <button type="button" class="settings-tab" data-tab="comments">💬 Yorumlar</button>
+		<button type="button" class="settings-tab" data-tab="mail">📧 Mail</button>
     </div>
 
     <div class="p-8">
@@ -164,6 +165,103 @@
                 </div>
             </div>
         </div>
+		        <!-- MAIL -->
+        <div class="settings-panel" data-panel="mail">
+            <h3 class="text-lg font-bold text-white mb-6">📧 Mail Ayarları (SMTP)</h3>
+
+            <div class="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 mb-6">
+                <p class="text-blue-400 text-sm">
+                    💡 <strong>Nasıl ayarlanır?</strong><br>
+                    • <strong>Gmail:</strong> smtp.gmail.com, port 587, TLS, uygulama şifresi<br>
+                    • <strong>Yandex:</strong> smtp.yandex.com, port 465, SSL<br>
+                    • <strong>Outlook:</strong> smtp-mail.outlook.com, port 587, TLS<br>
+                    • <strong>Kendi sunucunuz:</strong> mail.siteniz.com, port 587
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-gray-500 mb-2">SMTP Sunucu</label>
+                    <input type="text" name="smtp_host"
+                           value="<?= htmlspecialchars($config['smtp_host'] ?? '') ?>"
+                           placeholder="smtp.gmail.com"
+                           class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-blue-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-gray-500 mb-2">Port</label>
+                    <input type="number" name="smtp_port"
+                           value="<?= (int)($config['smtp_port'] ?? 587) ?>"
+                           placeholder="587"
+                           class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-blue-500 focus:outline-none">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-gray-500 mb-2">Kullanıcı Adı (E-posta)</label>
+                    <input type="text" name="smtp_user"
+                           value="<?= htmlspecialchars($config['smtp_user'] ?? '') ?>"
+                           placeholder="siteniz@gmail.com"
+                           class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-blue-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-gray-500 mb-2">Şifre</label>
+                    <input type="password" name="smtp_pass"
+                           value="<?= htmlspecialchars($config['smtp_pass'] ?? '') ?>"
+                           placeholder="Uygulama şifresi"
+                           class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-blue-500 focus:outline-none">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs uppercase tracking-wider text-gray-500 mb-2">Güvenlik</label>
+                <select name="smtp_secure"
+                        class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-blue-500 focus:outline-none">
+                    <option value="tls" <?= ($config['smtp_secure'] ?? 'tls') === 'tls' ? 'selected' : '' ?>>TLS (port 587)</option>
+                    <option value="ssl" <?= ($config['smtp_secure'] ?? '') === 'ssl' ? 'selected' : '' ?>>SSL (port 465)</option>
+                    <option value=""    <?= ($config['smtp_secure'] ?? '') === '' ? 'selected' : '' ?>>Yok (port 25)</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 pt-4 border-t border-gray-800">
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-gray-500 mb-2">Gönderen Adı</label>
+                    <input type="text" name="smtp_from_name"
+                           value="<?= htmlspecialchars($config['smtp_from_name'] ?? 'FtoniNuke') ?>"
+                           class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-blue-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-gray-500 mb-2">Gönderen E-posta</label>
+                    <input type="email" name="smtp_from_email"
+                           value="<?= htmlspecialchars($config['smtp_from_email'] ?? '') ?>"
+                           placeholder="noreply@siteniz.com"
+                           class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-blue-500 focus:outline-none">
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-gray-800">
+                <label class="block text-xs uppercase tracking-wider text-gray-500 mb-2">📥 İletişim Formu Mesajları Hangi Adrese Gitsin?</label>
+                <input type="email" name="contact_email"
+                       value="<?= htmlspecialchars($config['contact_email'] ?? '') ?>"
+                       placeholder="info@siteniz.com"
+                       class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-blue-500 focus:outline-none">
+                <p class="text-xs text-gray-500 mt-1">Boş bırakılırsa "Gönderen E-posta" adresi kullanılır.</p>
+            </div>
+
+            <!-- TEST MAIL -->
+            <div class="mt-6 pt-6 border-t border-gray-800">
+                <h4 class="text-white font-bold mb-3">🧪 Test Maili Gönder</h4>
+                <div class="flex gap-3">
+                    <input type="email" id="test-mail-to" placeholder="test@example.com"
+                           class="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-blue-500 focus:outline-none">
+                    <button type="button" onclick="sendTestMail()"
+                            class="bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold px-6 py-2 rounded-lg">
+                        ✉️ Test Gönder
+                    </button>
+                </div>
+                <p id="test-mail-result" class="text-xs mt-2"></p>
+            </div>
+        </div>
 
     </div>
 
@@ -184,5 +282,44 @@ document.querySelectorAll('.settings-tab').forEach(tab => {
         tab.classList.add('active');
         document.querySelector(`[data-panel="${tab.dataset.tab}"]`).classList.add('active');
     });
+	
+	async function sendTestMail() {
+    const to = document.getElementById('test-mail-to').value.trim();
+    const result = document.getElementById('test-mail-result');
+
+    if (!to) {
+        result.className = 'text-xs mt-2 text-red-400';
+        result.textContent = 'Lütfen bir e-posta adresi girin.';
+        return;
+    }
+
+    result.className = 'text-xs mt-2 text-gray-400';
+    result.textContent = '⏳ Gönderiliyor...';
+
+    try {
+        const form = document.querySelector('form');
+        const formData = new FormData(form);
+        formData.append('test_mail_to', to);
+
+        const res = await fetch('/public/admin/settings/test-mail', {
+            method: 'POST',
+            body: formData,
+            credentials: 'same-origin'
+        });
+        const data = await res.json();
+
+        if (data.ok) {
+            result.className = 'text-xs mt-2 text-green-400';
+            result.textContent = '✅ ' + data.message;
+        } else {
+            result.className = 'text-xs mt-2 text-red-400';
+            result.textContent = '❌ ' + data.error;
+        }
+    } catch (e) {
+        result.className = 'text-xs mt-2 text-red-400';
+        result.textContent = '❌ Hata: ' + e.message;
+    }
+}
 });
 </script>
+

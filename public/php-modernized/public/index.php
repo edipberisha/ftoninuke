@@ -59,6 +59,18 @@ $router->get('/admin/menu', [AdminController::class, 'menu']);
 $router->post('/admin/menu', [AdminController::class, 'menu']);
 $router->get('/admin/settings',  [AdminController::class, 'settings']);
 $router->post('/admin/settings', [AdminController::class, 'settings']);
+$router->post('/admin/settings/test-mail', [AdminController::class, 'settingsTestMail']);
+// Pages CRUD
+$router->get('/admin/pages',         [AdminController::class, 'pages']);
+$router->get('/admin/pages/create',  [AdminController::class, 'pageCreate']);
+$router->post('/admin/pages/create', [AdminController::class, 'pageCreate']);
+$router->get('/admin/pages/edit',    [AdminController::class, 'pageEdit']);
+$router->post('/admin/pages/edit',   [AdminController::class, 'pageEdit']);
+$router->get('/admin/pages/delete',  [AdminController::class, 'pageDelete']);
+$router->get('/admin/pages/toggle',  [AdminController::class, 'pageToggle']);
+
+// Messages
+$router->get('/admin/messages', [AdminController::class, 'messages']);
 
 // ─── News CRUD (admin) ─────────────────────────────
 $router->get('/admin/news',         [AdminController::class, 'news']);
@@ -92,11 +104,23 @@ $router->get('/api/media', [\FtoniNuke\Controller\Api\MediaController::class, 'l
 $router->post('/comment/submit',    [CommentController::class, 'submit']);
 $router->get('/comment/captcha',    [CommentController::class, 'refreshCaptcha']);
 
-// ─── SEO URL — Haber Detay (slug ile) ────────────
+// ─── SEO URL — Sayfa / Haber Detay (slug ile) ────
 $router->get('/{slug}', function(string $slug) {
-    $slug = preg_replace('/\.html?$/', '', $slug); // .html uzantısını temizle
+    $slug = preg_replace('/\.html?$/', '', $slug);
+
+    // Önce statik sayfa mı?
+    $pageRepo = new \FtoniNuke\Repository\PageRepository();
+    if ($pageRepo->findBySlug($slug)) {
+        (new \FtoniNuke\Controller\PageController())->show($slug);
+        return;
+    }
+
+    // Değilse haber
     (new HomeController())->showBySlug($slug);
 });
+
+// ─── İletişim formu POST ─────────────────────────
+$router->post('/contact/submit', [\FtoniNuke\Controller\PageController::class, 'contactSubmit']);
 
 // ─── İsteği işle ────────────────────────────────────
 $router->dispatch();
