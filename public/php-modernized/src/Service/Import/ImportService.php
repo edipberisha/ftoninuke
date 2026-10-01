@@ -69,9 +69,12 @@ abstract class ImportService
     {
         if (!$this->sourceDb) return false;
         try {
-            $stmt = $this->sourceDb->prepare("SHOW TABLES LIKE ?");
+            $stmt = $this->sourceDb->prepare(
+                "SELECT COUNT(*) FROM information_schema.TABLES
+                 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?"
+            );
             $stmt->execute([$table]);
-            return $stmt->fetch() !== false;
+            return (int)$stmt->fetchColumn() > 0;
         } catch (\Throwable $e) {
             return false;
         }
@@ -84,9 +87,12 @@ abstract class ImportService
     {
         if (!$this->sourceDb) return false;
         try {
-            $stmt = $this->sourceDb->prepare("SHOW COLUMNS FROM `$table` LIKE ?");
-            $stmt->execute([$column]);
-            return $stmt->fetch() !== false;
+            $stmt = $this->sourceDb->prepare(
+                "SELECT COUNT(*) FROM information_schema.COLUMNS
+                 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?"
+            );
+            $stmt->execute([$table, $column]);
+            return (int)$stmt->fetchColumn() > 0;
         } catch (\Throwable $e) {
             return false;
         }

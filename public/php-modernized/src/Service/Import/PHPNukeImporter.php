@@ -22,6 +22,9 @@ class PHPNukeImporter extends ImportService
     protected string $sourceName = 'phpnuke';
     protected string $prefix = 'nuke_';
 
+    /** @var array Eski sid → Yeni sid eşlemesi (importNews sırasında doldurulur) */
+    protected array $storyMap = [];
+
     public function __construct(string $prefix = 'nuke_')
     {
         parent::__construct();
@@ -269,11 +272,14 @@ class PHPNukeImporter extends ImportService
             // Yazar eşleştirme (aid → username)
             $authorUsername = trim($row['aid'] ?? 'admin');
 
+            // Dry-run: sadece say, storyMap'e eski sid'i koy
             if ($this->dryRun) {
+                $this->storyMap[(int)$row['sid']] = (int)$row['sid'];
                 $this->updateStats($step, 'imported');
                 continue;
             }
 
+            // Gerçek aktarım
             try {
                 $this->targetDb->query(
                     "INSERT INTO nuke_stories
@@ -290,6 +296,8 @@ class PHPNukeImporter extends ImportService
                         trim($row['informant'] ?? ''),
                     ]
                 );
+                $newSid = (int)$this->targetDb->getConnection()->lastInsertId();
+                $this->storyMap[(int)$row['sid']] = $newSid;
                 $this->updateStats($step, 'imported');
             } catch (\Throwable $e) {
                 $this->updateStats($step, 'failed');
@@ -346,8 +354,9 @@ class PHPNukeImporter extends ImportService
             return $this->stepReport($step);
         }
 
-        // Story map: eski sid → yeni sid
-        $storyMap = $this->buildStoryMap();
+        // Story map: importNews() sırasında dolduruldu mu?
+        // Dolmadıysa (örn. sadece comments seçildiyse) fallback yap
+        $storyMap = !empty($this->storyMap) ? $this->storyMap : $this->buildStoryMap();
 
         $rows = $this->sourceDb->query("SELECT * FROM `$table` ORDER BY tid ASC")->fetchAll();
         $this->stats[$step]['total'] = count($rows);
