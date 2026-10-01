@@ -285,6 +285,15 @@ class AdminController
         }
 
         $topics = $topicRepo->all();
+
+        // Haber sayıları (her kategori için)
+        $topicCounts = [];
+        try {
+            $rows = $this->db->fetchAll("SELECT topic, COUNT(*) AS c FROM nuke_stories GROUP BY topic");
+            foreach ($rows as $r) {
+                $topicCounts[(int)$r['topic']] = (int)$r['c'];
+            }
+        } catch (\Throwable $e) {}
         $flash  = $_SESSION['flash'] ?? null;
         unset($_SESSION['flash']);
 

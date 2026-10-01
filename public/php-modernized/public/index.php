@@ -55,6 +55,7 @@ $router->get('/admin/security',  [AdminController::class, 'security']);
 $router->get('/admin/blocks',    [AdminController::class, 'blocks']);
 $router->get('/admin/comments', [AdminController::class, 'comments']);
 $router->get('/admin/topics',    [AdminController::class, 'topics']);
+$router->post('/admin/topics',   [AdminController::class, 'topics']);
 $router->get('/admin/menu', [AdminController::class, 'menu']);
 $router->post('/admin/menu', [AdminController::class, 'menu']);
 $router->get('/admin/settings',  [AdminController::class, 'settings']);
