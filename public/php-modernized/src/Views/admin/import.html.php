@@ -13,6 +13,29 @@
 
 <form method="post" action="/public/admin/import/run" class="space-y-6">
 
+    <!-- KAYNAK SEÇİMİ -->
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+        <h3 class="text-white font-bold mb-4">📦 Kaynak Platform</h3>
+        <div class="grid grid-cols-2 gap-4">
+            <label class="cursor-pointer">
+                <input type="radio" name="source" value="phpnuke" checked class="peer sr-only">
+                <div class="border-2 border-gray-700 peer-checked:border-blue-500 peer-checked:bg-blue-500/10 rounded-lg p-5 transition">
+                    <div class="text-3xl mb-2">🗿</div>
+                    <div class="text-white font-bold">PHP-Nuke</div>
+                    <div class="text-xs text-gray-500 mt-1">Klasik PHP-Nuke 7.x / 8.x siteleri</div>
+                </div>
+            </label>
+            <label class="cursor-pointer">
+                <input type="radio" name="source" value="wordpress" class="peer sr-only">
+                <div class="border-2 border-gray-700 peer-checked:border-blue-500 peer-checked:bg-blue-500/10 rounded-lg p-5 transition">
+                    <div class="text-3xl mb-2">📝</div>
+                    <div class="text-white font-bold">WordPress</div>
+                    <div class="text-xs text-gray-500 mt-1">WordPress 5.x / 6.x siteleri</div>
+                </div>
+            </label>
+        </div>
+    </div>
+
     <!-- BAĞLANTI -->
     <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
         <h3 class="text-white font-bold mb-4">🔌 Kaynak Veritabanı (Eski PHP-Nuke)</h3>
@@ -40,7 +63,7 @@
                 <label class="block text-xs uppercase tracking-wider text-gray-500 mb-2">Tablo Prefix</label>
                 <input type="text" name="prefix" value="nuke_" required
                        class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white font-mono focus:border-blue-500 focus:outline-none">
-                <p class="text-xs text-gray-500 mt-1">Klasik PHP-Nuke: <code>nuke_</code></p>
+                <p class="text-xs text-gray-500 mt-1">PHP-Nuke: <code>nuke_</code> · WordPress: <code>wp_</code></p>
             </div>
         </div>
 

@@ -1056,7 +1056,12 @@ class AdminController
         }
 
         try {
-            $importer = new \FtoniNuke\Service\Import\PHPNukeImporter($prefix);
+            $source = $_POST['source'] ?? 'phpnuke';
+            $importerClass = match($source) {
+                'wordpress' => \FtoniNuke\Service\Import\WordPressImporter::class,
+                default     => \FtoniNuke\Service\Import\PHPNukeImporter::class,
+            };
+            $importer = new $importerClass($prefix);
             $importer->connect([
                 'host' => $host,
                 'name' => $name,
