@@ -1,6 +1,6 @@
 FROM php:8.3-cli-alpine
 
-# PDO MySQL + gerekli eklentiler
+# Sistem paketleri + PDO MySQL + gerekli eklentiler
 RUN apk add --no-cache \
         mariadb-dev \
         oniguruma-dev \
@@ -9,6 +9,9 @@ RUN apk add --no-cache \
         libjpeg-turbo-dev \
         freetype-dev \
         icu-dev \
+        curl \
+        git \
+        unzip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) \
         pdo_mysql \
@@ -17,6 +20,9 @@ RUN apk add --no-cache \
         gd \
         intl \
         opcache
+
+# Composer'ı resmi imajdan kopyala
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Çalışma dizini
 WORKDIR /var/www/html/public/php-modernized
