@@ -1,4 +1,60 @@
+# ═══════════════════════════════════════════════════
+# ORTAM DEĞİŞKENLERİ (ŞİFRELER!)
+# ═══════════════════════════════════════════════════
+.env
+.env.local
+.env.*.local
 
-# Modernize edilmiş uygulamanın uploads'ı
+# ═══════════════════════════════════════════════════
+# VERİTABANI BAĞLANTI BİLGİLERİ (ŞİFRE İÇERİR!)
+# ═══════════════════════════════════════════════════
+public/php-modernized/config/database.php
+public/php-modernized/config/app.php
+!public/php-modernized/config/database.php.example
+
+# ═══════════════════════════════════════════════════
+# COMPOSER VENDOR (composer install ile kurulur)
+# ═══════════════════════════════════════════════════
+public/php-modernized/vendor/
+
+# NOT: composer.lock KALMALI (versiyonları sabitler)
+
+# ═══════════════════════════════════════════════════
+# KULLANICI YÜKLEMELERİ
+# ═══════════════════════════════════════════════════
 public/php-modernized/public/uploads/*
 !public/php-modernized/public/uploads/.gitkeep
+
+# ═══════════════════════════════════════════════════
+# CACHE & LOG
+# ═══════════════════════════════════════════════════
+public/php-modernized/cache/*
+!public/php-modernized/cache/.gitkeep
+*.log
+
+# ═══════════════════════════════════════════════════
+# KURULUM LOCK (kurulum tamamlandı işareti)
+# ═══════════════════════════════════════════════════
+public/php-modernized/install/installed.lock
+
+# ═══════════════════════════════════════════════════
+# OS
+# ═══════════════════════════════════════════════════
+.DS_Store
+Thumbs.db
+
+# ═══════════════════════════════════════════════════
+# IDE
+# ═══════════════════════════════════════════════════
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ═══════════════════════════════════════════════════
+# YEDEKLER
+# ═══════════════════════════════════════════════════
+*.bak
+*.backup
+*.old

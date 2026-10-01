@@ -1,0 +1,20 @@
+<?php
+
+/**
+ * Veritabanı Bağlantı Yapılandırması
+ *
+ * Bu bir ÖRNEK dosyadır. Kurulum sihirbazı bu dosyayı otomatik
+ * `database.php` olarak oluşturur. Manuel kurulum için:
+ *
+ *   cp database.php.example database.php
+ *
+ * ve kendi bilgilerinizi girin.
+ */
+
+return [
+    'host'    => 'database-server-db-1',   // Docker: container adı | Native: localhost
+    'dbname'  => 'ftoninuke_db',           // Veritabanı adı
+    'user'    => 'ftoninuke_user',         // Kullanıcı adı
+    'pass'    => 'guclu-bir-sifre-girin',  // Şifre
+    'prefix'  => 'nuke_',                  // Tablo prefix
+];
