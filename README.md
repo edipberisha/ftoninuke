@@ -80,6 +80,55 @@ FtoniNuke, **20 yıllık PHP-Nuke mirasını** modern standartlarda yeniden yaza
 
 ---
 
+### Screenshots
+## 📸 Ekran Görüntüleri
+
+### 🏠 Ön Yüz (Frontend)
+
+| Ana Sayfa | Haber Detay |
+|---|---|
+| ![Ana Sayfa](docs/screenshots/homepage.png) | ![Haber](docs/screenshots/newspage.png) |
+
+### 📊 Admin Panel — Dashboard
+
+![Dashboard](docs/screenshots/dashboard.png)
+
+### 📝 İçerik Yönetimi
+
+| Haberler | Haber Düzenleme |
+|---|---|
+| ![Haberler](docs/screenshots/news-dashboard.png) | ![Düzenle](docs/screenshots/news-editing.png) |
+
+| Kategoriler | Sayfalar |
+|---|---|
+| ![Kategori](docs/screenshots/categories-settings.png) | ![Sayfa](docs/screenshots/page-settings.png) |
+
+| Menü | Bloklar |
+|---|---|
+| ![Menü](docs/screenshots/menu-settings.png) | ![Blok](docs/screenshots/blok-settings.png) |
+
+### ⚙️ Sistem Ayarları
+
+| Genel | Mail |
+|---|---|
+| ![Sistem](docs/screenshots/system-settings.png) | ![Mail](docs/screenshots/system-mail-settings.png) |
+
+| Yorumlar | Kullanıcılar |
+|---|---|
+| ![Yorum](docs/screenshots/system-comments-settings.png) | ![Kullanıcı](docs/screenshots/system-user-settings.png) |
+
+### 📥 İçeri Aktarma & İletişim
+
+| Import | İletişim |
+|---|---|
+| ![Import](docs/screenshots/import-settings.png) | ![İletişim](docs/screenshots/contact-information.png) |
+
+### 👤 Kullanıcı Ayarları
+
+![User Settings](docs/screenshots/user-settings.png)
+
+---
+
 ## 🚀 Hızlı Kurulum (Docker)
 
 ### 1. MariaDB Başlat
